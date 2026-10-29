@@ -7,6 +7,10 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 2
+    # The git dependencies are bumped by hand, to a release tag. Dependabot
+    # cannot order git tags and has proposed a downgrade.
+    ignore:
+      - dependency-name: "@autopaylab/*"
     groups:
       all-npm:
         patterns: ["*"]
