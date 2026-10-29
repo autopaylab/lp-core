@@ -92,8 +92,21 @@ Delivery needs `LMS_LEAD_URL` and `LMS_FORM_ALIAS`. The lead sent to the LMS alw
 ```ts
 // src/proxy.ts
 import { createLaunchGate } from "@autopaylab/lp-core/server";
+import type { NextRequest } from "next/server";
 
-export const { proxy, config } = createLaunchGate({ realm: "My landing" });
+const gate = createLaunchGate({ realm: "My landing" });
+
+// Next analyses this file statically: `proxy` must be a plain exported
+// function and `config.matcher` a literal, so neither can be destructured
+// from the package. The matcher mirrors gate.config (everything except
+// security.txt, which must stay reachable for security reports).
+export function proxy(request: NextRequest) {
+  return gate.proxy(request);
+}
+
+export const config = {
+  matcher: ["/((?!\\.well-known/security\\.txt$).*)"],
+};
 ```
 
 Until `SITE_IS_PUBLIC=true`, every route except `/.well-known/security.txt` requires `BASIC_AUTH_USER` / `BASIC_AUTH_PASSWORD`, and the site is noindex (`X-Robots-Tag`, `robots.txt`, metadata). A non-public deployment without credentials answers 503. Preview deployments stay noindex after launch. A page that never needs the gate simply has no `src/proxy.ts`.
