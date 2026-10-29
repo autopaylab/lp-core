@@ -1,6 +1,6 @@
 import { E as EnvVars } from '../site-config-CegvYjda.js';
 export { i as isIndexable, a as isSitePublic } from '../site-config-CegvYjda.js';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server.js';
 import { LeadSchema, Lead } from '../lead/index.js';
 export { BASE_FIELD_NAMES, EMAIL_MAX_LENGTH, EMAIL_PATTERN, ExtraFields, FieldErrorCode, FieldErrors, FieldSpec, FieldValue, LeadSchemaOptions, LeadValidation, defineLeadSchema, validateLead } from '../lead/index.js';
 import { MetadataRoute } from 'next';

@@ -29,7 +29,7 @@ function isAuthorized(authorizationHeader, expected) {
 }
 
 // src/server/launch-gate.ts
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 
 // src/config/site-config.ts
 function isSitePublic(env = process.env) {

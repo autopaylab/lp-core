@@ -71,7 +71,7 @@ function isAuthorized(authorizationHeader, expected) {
 }
 
 // src/server/launch-gate.ts
-var import_server = require("next/server");
+var import_server = require("next/server.js");
 
 // src/config/site-config.ts
 function isSitePublic(env = process.env) {
