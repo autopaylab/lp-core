@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { Lead } from "./lead-schema";
+import type { Lead } from "../lead/lead-schema";
 import { buildLeadPayload, readLmsConfig, sendLeadToLms } from "./lms";
 
 const lead: Lead = { email: "anna@firma.pl", message: "Bilety\nna wystawy", marketing_consent: true, locale: "en", fields: {} };

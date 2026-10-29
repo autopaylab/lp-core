@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createLeadHandler } from "./lead-handler";
-import { defineLeadSchema } from "./lead-schema";
+import { defineLeadSchema } from "../lead/lead-schema";
 
 const schema = defineLeadSchema({ locales: ["pl", "en"], fields: { company: { kind: "text", maxLength: 100 } } });
 const consentText = { pl: "Zgadzam się na kontakt marketingowy.", en: "I agree to marketing contact." };

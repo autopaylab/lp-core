@@ -1,8 +1,7 @@
 name: CI
 
-# One short job. This repo is private, so every minute counts against the
-# free GitHub Actions quota: no matrix, no scheduled runs, newer pushes
-# cancel older runs of the same branch.
+# One short job, same shape as every landing page's CI: no matrix, no
+# scheduled runs, newer pushes cancel older runs of the same branch.
 on:
   push:
     branches: [main]

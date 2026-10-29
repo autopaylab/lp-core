@@ -2,6 +2,16 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## 0.2.0 - 2026-10-29
+
+### Added
+
+- `@autopaylab/lp-core/lead`: the lead contract (`defineLeadSchema`, `validateLead`, field types, `EMAIL_PATTERN`) as an isomorphic entry with no Node or Next imports, so a client-side form can validate with the same schema the route handler enforces. `server` still re-exports it.
+
+### Changed
+
+- The repository is public (no secrets inside); installing needs no token on Vercel or in CI.
+
 ## 0.1.0 - 2026-10-29
 
 First release. Extracted from `autopaylab/paytalkpl` (the most complete landing page at the time) and generalised.

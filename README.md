@@ -6,11 +6,13 @@ UI lives in [`landing-design-system`](https://github.com/autopaylab/landing-desi
 
 ## Install
 
-Private repo, installed straight from a release tag. Never `#main`, never a commit hash:
+Installed straight from a release tag. Never `#main`, never a commit hash:
 
 ```bash
-npm install github:autopaylab/lp-core#v0.1.0
+npm install github:autopaylab/lp-core#v0.2.0
 ```
+
+The repo is public on purpose: it holds no secrets (every credential and endpoint comes from a landing page's environment variables), and a public git dependency needs no token on Vercel or in CI, so there is no token to rotate or to expire. Landing-page repos themselves stay private.
 
 `dist/` is committed, so the install needs no build step. Peer dependencies: `next >= 16`, `react >= 19`, `@autopaylab/landing-design-system >= 0.12` (the first tag whose `CookieConsentScript` takes `locale`).
 
@@ -19,7 +21,8 @@ npm install github:autopaylab/lp-core#v0.1.0
 | Import | Use |
 |---|---|
 | `@autopaylab/lp-core/config` | `createSecurityHeaders()` in `next.config.ts`; `isSitePublic`, `isIndexable`. No Next or React imports, safe in config files. |
-| `@autopaylab/lp-core/server` | `createLeadHandler()` as the `POST` of the form endpoint; `defineLeadSchema()`; `createLaunchGate()` for `src/proxy.ts`; `createRobots()`; `assertNoPlaceholdersWhenPublic()`. |
+| `@autopaylab/lp-core/lead` | `defineLeadSchema()`, `validateLead()`: the lead contract, with no Node or Next imports, so the form validates in the browser with the same schema the server enforces. |
+| `@autopaylab/lp-core/server` | `createLeadHandler()` as the `POST` of the form endpoint; `createLaunchGate()` for `src/proxy.ts`; `createRobots()`; `assertNoPlaceholdersWhenPublic()`. Re-exports `lead`. |
 | `@autopaylab/lp-core/react` | `RootDocument` for the root layout; `trackEvent`, `trackCtaClick`, `trackFormStart`, `trackFormSubmit`; `openCookieSettings`. |
 | `npx lp-check` | Ground-rules check for CI: tag pins, `.env.example`, `security.txt`, no fonts outside the design system. |
 
@@ -59,7 +62,7 @@ Every page renders `<main id="main">` (see `MAIN_CONTENT_ID`). Matomo is added o
 
 ```ts
 // src/content/lead.ts
-import { defineLeadSchema } from "@autopaylab/lp-core/server";
+import { defineLeadSchema } from "@autopaylab/lp-core/lead";
 
 export const leadSchema = defineLeadSchema({
   locales: ["pl", "en"],
@@ -129,7 +132,7 @@ Semver as seen from a landing page: a **major** means a landing page must change
 
 ## Design decisions
 
-- **Three entry points, not one.** `config` must load inside `next.config.ts` before the app exists, so it imports neither Next nor React. `server` and `react` are split so a route handler never pulls in the document shell.
+- **Four entry points, not one.** `config` must load inside `next.config.ts` before the app exists, so it imports neither Next nor React. `lead` is isomorphic so a client component can validate with it; `server` carries Node-only code (`node:crypto`, `next/server`) that a browser bundle must never see. `react` is split from both so a route handler never pulls in the document shell.
 - **No validation library.** The lead schema supports four field kinds with a length limit each. That covers every landing page form so far; a library would add a dependency to review and a second place for rules to live.
 - **In-memory rate limiting is a backstop.** Vercel Functions don't share memory. The real limit is a Vercel Firewall rule on the form endpoint, set per landing page.
 - **`dist/` is committed.** Same pattern as the design system: installing from a git tag needs no build step on the consumer's side, and CI verifies the committed build matches the source.

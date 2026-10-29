@@ -1,5 +1,5 @@
 import type { EnvVars } from "../config/site-config";
-import { type LeadSchema, validateLead } from "./lead-schema";
+import { type LeadSchema, validateLead } from "../lead/lead-schema";
 import { buildLeadPayload, readLmsConfig, sendLeadToLms } from "./lms";
 import { isRateLimited } from "./rate-limit";
 

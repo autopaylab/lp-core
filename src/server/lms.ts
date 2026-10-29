@@ -1,5 +1,5 @@
 import type { EnvVars } from "../config/site-config";
-import type { Lead } from "./lead-schema";
+import type { Lead } from "../lead/lead-schema";
 
 /**
  * Delivery of a validated lead to the LMS (`POST https://[domain]/lms/lead/receive`,
