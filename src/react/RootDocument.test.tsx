@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import { MAIN_CONTENT_ID, RootDocument } from "./RootDocument";
 
-const render = (env: Record<string, string | undefined>, locale = "pl") =>
+const render = (env: Record<string, string | undefined>, locale = "pl", bannerLocale?: "pl" | "en") =>
   renderToStaticMarkup(
-    <RootDocument locale={locale} skipLinkLabel="Przejdź do treści" env={env}>
+    <RootDocument locale={locale} bannerLocale={bannerLocale} skipLinkLabel="Przejdź do treści" env={env}>
       <main id={MAIN_CONTENT_ID}>content</main>
     </RootDocument>,
   );
@@ -36,8 +36,22 @@ describe("RootDocument", () => {
     expect(html).toContain('<main id="main">content</main>');
   });
 
-  it("passes an unknown locale to <html lang> but not to the banner", () => {
-    expect(() => render({}, "de")).not.toThrow();
-    expect(render({}, "de")).toContain('<html lang="de">');
+  it("sets the banner language only when asked, otherwise lets the banner read the client's stored choice", () => {
+    expect(render({}, "pl", "pl")).toContain('window.cmp_setlang = "PL"');
+    expect(render({}, "en", "en")).toContain('window.cmp_setlang = "EN"');
+    const html = render({}, "en");
+    expect(html).not.toContain("cmp_setlang = ");
+    expect(html).toContain("localStorage.getItem");
+    expect(html).toContain('<html lang="en">');
+  });
+
+  it("accepts a client component as the skip link label", () => {
+    const Label = () => <span>Skip</span>;
+    const html = renderToStaticMarkup(
+      <RootDocument locale="en" skipLinkLabel={<Label />} env={{}}>
+        <main id={MAIN_CONTENT_ID}>content</main>
+      </RootDocument>,
+    );
+    expect(html).toContain("<span>Skip</span>");
   });
 });

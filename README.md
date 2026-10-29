@@ -49,14 +49,14 @@ import { RootDocument } from "@autopaylab/lp-core/react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RootDocument locale="pl" skipLinkLabel="Przejdź do treści">
+    <RootDocument locale="pl" bannerLocale="pl" skipLinkLabel="Przejdź do treści">
       {children}
     </RootDocument>
   );
 }
 ```
 
-Every page renders `<main id="main">` (see `MAIN_CONTENT_ID`). Matomo is added only when `NEXT_PUBLIC_MATOMO_SITE_ID` and `NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID` are both set, and runs only after the visitor consents to the Matomo vendor in ConsentManager.
+Every page renders `<main id="main">` (see `MAIN_CONTENT_ID`). `bannerLocale` fixes the consent banner's language for pages with one URL per locale; leave it out on a page that switches language on the client and stores the choice under the design system's localStorage key, and the banner follows that choice. `skipLinkLabel` can be a client component for the same reason. Matomo is added only when `NEXT_PUBLIC_MATOMO_SITE_ID` and `NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID` are both set, and runs only after the visitor consents to the Matomo vendor in ConsentManager.
 
 ### Lead form endpoint
 

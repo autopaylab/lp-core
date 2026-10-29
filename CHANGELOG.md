@@ -2,6 +2,12 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## 0.3.0 - 2026-10-29
+
+### Changed
+
+- `RootDocument`: the consent banner's language is no longer derived from `locale`. Pass `bannerLocale` ("pl" | "en") on pages that render each locale at its own URL; leave it out on pages that switch language on the client, so the banner reads the stored choice itself (autopaylab.com's pattern). `skipLinkLabel` accepts a ReactNode, so a client component can localise it.
+
 ## 0.2.1 - 2026-10-29
 
 ### Fixed

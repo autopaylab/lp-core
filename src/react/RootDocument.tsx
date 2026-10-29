@@ -21,8 +21,19 @@ const SKIP_LINK_CSS = `
 export interface RootDocumentProps {
   /** The page's language, written to <html lang>. */
   locale: string;
-  /** Label of the skip link, in the page's language, e.g. "Przejdź do treści". */
-  skipLinkLabel: string;
+  /**
+   * Label of the skip link, in the page's language, e.g. "Przejdź do treści".
+   * A client component is fine here for pages that switch language on the
+   * client (the shell itself is a server component).
+   */
+  skipLinkLabel: ReactNode;
+  /**
+   * Language of the consent banner. Set it on pages that render each locale
+   * at its own URL. Leave it out on pages that switch language on the client
+   * and store the choice in localStorage under the design system's key
+   * ("autopaylab-locale"); the banner then reads that key itself.
+   */
+  bannerLocale?: "pl" | "en";
   children: ReactNode;
   /** Defaults to process.env. */
   env?: EnvVars;
@@ -45,7 +56,7 @@ export interface RootDocumentProps {
  * NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID are set, so a page that hasn't wired up
  * analytics yet doesn't ship a script that immediately no-ops.
  */
-export function RootDocument({ locale, skipLinkLabel, children, env = process.env, bodyClassName }: RootDocumentProps) {
+export function RootDocument({ locale, skipLinkLabel, bannerLocale, children, env = process.env, bodyClassName }: RootDocumentProps) {
   const matomoSiteId = env.NEXT_PUBLIC_MATOMO_SITE_ID ?? "";
   const matomoOrigin = env.NEXT_PUBLIC_MATOMO_ORIGIN || DEFAULT_MATOMO_ORIGIN;
   const matomoCmpVendorId = env.NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID ?? "";
@@ -53,8 +64,6 @@ export function RootDocument({ locale, skipLinkLabel, children, env = process.en
   // cdid). Only set it once the right ConsentManager cdid for this page's
   // actual domain has been confirmed. See the go-live checklist.
   const cmpCdid = env.NEXT_PUBLIC_CMP_CDID || undefined;
-  // The design system's banner knows two languages; any other locale gets its default.
-  const bannerLocale = locale === "pl" || locale === "en" ? locale : undefined;
 
   return (
     <html lang={locale}>
