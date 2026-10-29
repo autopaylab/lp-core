@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server.js";
 
 import { type EnvVars, isSitePublic } from "../config/site-config";
 import { isAuthorized, readBasicAuthCredentials } from "./basic-auth";

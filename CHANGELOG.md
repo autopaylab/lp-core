@@ -2,6 +2,12 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## 0.2.1 - 2026-10-29
+
+### Fixed
+
+- `server` imports `next/server.js` (with the extension) so the built package resolves under plain Node ESM, which is how vitest loads it from a landing page's node_modules. Bundled Next apps were unaffected.
+
 ## 0.2.0 - 2026-10-29
 
 ### Added
