@@ -1,0 +1,8 @@
+node_modules
+*.tsbuildinfo
+.env
+.env.*
+coverage
+.vercel
+# dist/ is committed on purpose: landing pages install this package straight
+# from a git tag, with no build step. CI fails if dist/ is stale.

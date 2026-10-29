@@ -1,0 +1,68 @@
+{
+  "name": "@autopaylab/lp-core",
+  "version": "0.1.0",
+  "description": "Shared Next.js runtime for Autopay landing pages: security headers, consent-gated analytics, LMS lead delivery, optional launch gate.",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.js",
+      "require": "./dist/config/index.cjs"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.cjs"
+    }
+  },
+  "bin": {
+    "lp-check": "./bin/lp-check.mjs"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src bin",
+    "test": "vitest run",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "preversion": "npm run check",
+    "version": "npm run build && git add -A dist CHANGELOG.md",
+    "postversion": "git push --follow-tags"
+  },
+  "peerDependencies": {
+    "@autopaylab/landing-design-system": ">=0.12.0",
+    "next": ">=16.0.0",
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
+  },
+  "devDependencies": {
+    "@autopaylab/landing-design-system": "github:autopaylab/landing-design-system#v0.12.0",
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
+    "jsdom": "^30.1.2",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tsup": "^8.3.5",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.0"
+  }
+}

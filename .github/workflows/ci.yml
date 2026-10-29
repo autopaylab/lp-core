@@ -1,0 +1,41 @@
+name: CI
+
+# One short job. This repo is private, so every minute counts against the
+# free GitHub Actions quota: no matrix, no scheduled runs, newer pushes
+# cancel older runs of the same branch.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint, typecheck, test
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: dist/ is committed and current
+        run: |
+          if ! git diff --quiet -- dist; then
+            echo "dist/ is out of date. Run 'npm run build' and commit the result."
+            git --no-pager diff --stat -- dist
+            exit 1
+          fi
