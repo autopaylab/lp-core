@@ -1,6 +1,6 @@
 {
   "name": "@autopaylab/lp-core",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Shared Next.js runtime for Autopay landing pages: security headers, consent-gated analytics, LMS lead delivery, optional launch gate.",
   "private": true,
   "license": "UNLICENSED",

@@ -106,12 +106,11 @@ var SKIP_LINK_CSS = `
 .${SKIP_LINK_CLASS}{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
 .${SKIP_LINK_CLASS}:focus{position:fixed;left:1rem;top:1rem;z-index:50;width:auto;height:auto;overflow:visible;padding:.5rem 1rem;border-radius:.5rem;background:var(--background,#fff);color:var(--foreground,#000);box-shadow:0 10px 30px rgba(0,0,0,.15);outline:2px solid currentColor}
 `.trim();
-function RootDocument({ locale, skipLinkLabel, children, env = process.env, bodyClassName }) {
+function RootDocument({ locale, skipLinkLabel, bannerLocale, children, env = process.env, bodyClassName }) {
   const matomoSiteId = env.NEXT_PUBLIC_MATOMO_SITE_ID ?? "";
   const matomoOrigin = env.NEXT_PUBLIC_MATOMO_ORIGIN || DEFAULT_MATOMO_ORIGIN;
   const matomoCmpVendorId = env.NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID ?? "";
   const cmpCdid = env.NEXT_PUBLIC_CMP_CDID || void 0;
-  const bannerLocale = locale === "pl" || locale === "en" ? locale : void 0;
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("html", { lang: locale, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("body", { className: bodyClassName, children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_organisms.CookieConsentScript, { cmpCdid, locale: bannerLocale }),
     matomoSiteId && matomoCmpVendorId ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("script", { id: "matomo-analytics", dangerouslySetInnerHTML: { __html: buildMatomoScript(matomoSiteId, matomoOrigin, matomoCmpVendorId) } }) : null,

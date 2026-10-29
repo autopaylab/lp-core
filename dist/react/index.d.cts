@@ -74,8 +74,19 @@ declare const MAIN_CONTENT_ID = "main";
 interface RootDocumentProps {
     /** The page's language, written to <html lang>. */
     locale: string;
-    /** Label of the skip link, in the page's language, e.g. "Przejdź do treści". */
-    skipLinkLabel: string;
+    /**
+     * Label of the skip link, in the page's language, e.g. "Przejdź do treści".
+     * A client component is fine here for pages that switch language on the
+     * client (the shell itself is a server component).
+     */
+    skipLinkLabel: ReactNode;
+    /**
+     * Language of the consent banner. Set it on pages that render each locale
+     * at its own URL. Leave it out on pages that switch language on the client
+     * and store the choice in localStorage under the design system's key
+     * ("autopaylab-locale"); the banner then reads that key itself.
+     */
+    bannerLocale?: "pl" | "en";
     children: ReactNode;
     /** Defaults to process.env. */
     env?: EnvVars;
@@ -97,6 +108,6 @@ interface RootDocumentProps {
  * NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID are set, so a page that hasn't wired up
  * analytics yet doesn't ship a script that immediately no-ops.
  */
-declare function RootDocument({ locale, skipLinkLabel, children, env, bodyClassName }: RootDocumentProps): react.JSX.Element;
+declare function RootDocument({ locale, skipLinkLabel, bannerLocale, children, env, bodyClassName }: RootDocumentProps): react.JSX.Element;
 
 export { type FormSubmitResult, MAIN_CONTENT_ID, RootDocument, type RootDocumentProps, buildMatomoScript, openCookieSettings, trackCtaClick, trackEvent, trackFormStart, trackFormSubmit };
