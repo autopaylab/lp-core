@@ -28,10 +28,6 @@ function isAuthorized(authorizationHeader, expected) {
   return isUserCorrect && isPasswordCorrect;
 }
 
-// src/server/email-pattern.ts
-var EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-var EMAIL_MAX_LENGTH = 320;
-
 // src/server/launch-gate.ts
 import { NextResponse } from "next/server";
 
@@ -68,7 +64,11 @@ function createLaunchGate(options = {}) {
   };
 }
 
-// src/server/lead-schema.ts
+// src/lead/email-pattern.ts
+var EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+var EMAIL_MAX_LENGTH = 320;
+
+// src/lead/lead-schema.ts
 var BASE_FIELD_NAMES = ["email", "message", "marketing_consent", "marketing_consent_text", "locale", "source", "hp_field"];
 var LMS_RESERVED_NAMES = ["_form"];
 var FIELD_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
