@@ -40,8 +40,8 @@ describe("RootDocument", () => {
     expect(render({}, "pl", "pl")).toContain('window.cmp_setlang = "PL"');
     expect(render({}, "en", "en")).toContain('window.cmp_setlang = "EN"');
     const html = render({}, "en");
-    expect(html).not.toContain("cmp_setlang = ");
-    expect(html).toContain("localStorage.getItem");
+    expect(html).not.toContain('cmp_setlang = "EN"');
+    expect(html).toContain('localStorage.getItem("autopaylab-locale")');
     expect(html).toContain('<html lang="en">');
   });
 
