@@ -2,6 +2,12 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## Unreleased
+
+### Fixed
+
+- `assertNoPlaceholdersWhenPublic` checks string values only, for the markers the templates write (`PLACEHOLDER:` and `/placeholders/` paths), and reports the path of the first hit (e.g. `site.hero.title`). It used to match the bare word "placeholder" anywhere in the serialized content, keys included, so a field named `messagePlaceholder` blocked a public build of a finished page (ai.autopay.pl, 2026-11-02).
+
 ## 0.3.0 - 2026-10-29
 
 ### Changed
