@@ -60,12 +60,17 @@ interface LeadHandlerOptions<L extends string> {
 /** Error codes returned to the form, which maps them to localized messages. */
 type LeadHandlerError = "rate_limited" | "invalid_json" | "validation" | "server";
 /**
+ * Why a "server" error happened, for diagnosis (monitoring, DevTools, logs). The form keeps showing one generic
+ * message; it never needs to branch on this.
+ */
+type LeadServerErrorReason = "lms_not_configured" | "lms_rejected" | "lms_bad_response" | "lms_network" | "lms_timeout";
+/**
  * A hardened `POST` route handler for a landing page's lead form:
  *
  *   export const POST = createLeadHandler({ source, schema, consentText });
  *
  * Order is fixed and is the point: rate limit, JSON parse, honeypot drop,
- * server-side validation of every field, then delivery to the LMS. Nothing
+ * LMS configuration, server-side validation of every field, then delivery to the LMS. Nothing
  * reaches the LMS that was not validated here, whatever the browser sent.
  */
 declare function createLeadHandler<L extends string>(options: LeadHandlerOptions<L>): (request: Request) => Promise<Response>;
@@ -144,4 +149,4 @@ interface RobotsOptions {
  */
 declare function createRobots(options: RobotsOptions): MetadataRoute.Robots;
 
-export { type BasicAuthCredentials, EnvVars, type LaunchGate, type LaunchGateOptions, Lead, type LeadHandlerError, type LeadHandlerOptions, type LeadPayload, type LeadPayloadOptions, LeadSchema, type LmsConfig, type LmsResult, type RobotsOptions, assertNoPlaceholdersWhenPublic, buildLeadPayload, createLaunchGate, createLeadHandler, createRobots, isAuthorized, isRateLimited, readBasicAuthCredentials, readLmsConfig, sendLeadToLms };
+export { type BasicAuthCredentials, EnvVars, type LaunchGate, type LaunchGateOptions, Lead, type LeadHandlerError, type LeadHandlerOptions, type LeadPayload, type LeadPayloadOptions, LeadSchema, type LeadServerErrorReason, type LmsConfig, type LmsResult, type RobotsOptions, assertNoPlaceholdersWhenPublic, buildLeadPayload, createLaunchGate, createLeadHandler, createRobots, isAuthorized, isRateLimited, readBasicAuthCredentials, readLmsConfig, sendLeadToLms };

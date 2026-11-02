@@ -20,6 +20,12 @@ export interface LeadHandlerOptions<L extends string> {
 /** Error codes returned to the form, which maps them to localized messages. */
 export type LeadHandlerError = "rate_limited" | "invalid_json" | "validation" | "server";
 
+/**
+ * Why a "server" error happened, for diagnosis (monitoring, DevTools, logs). The form keeps showing one generic
+ * message; it never needs to branch on this.
+ */
+export type LeadServerErrorReason = "lms_not_configured" | "lms_rejected" | "lms_bad_response" | "lms_network" | "lms_timeout";
+
 const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 5;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 
@@ -31,7 +37,7 @@ const reply = (status: number, body: unknown) => Response.json(body, { status })
  *   export const POST = createLeadHandler({ source, schema, consentText });
  *
  * Order is fixed and is the point: rate limit, JSON parse, honeypot drop,
- * server-side validation of every field, then delivery to the LMS. Nothing
+ * LMS configuration, server-side validation of every field, then delivery to the LMS. Nothing
  * reaches the LMS that was not validated here, whatever the browser sent.
  */
 export function createLeadHandler<L extends string>(options: LeadHandlerOptions<L>): (request: Request) => Promise<Response> {
@@ -61,16 +67,22 @@ export function createLeadHandler<L extends string>(options: LeadHandlerOptions<
       return reply(200, { ok: true });
     }
 
-    const result = validateLead(options.schema, body);
-    if (!result.ok) {
-      return reply(400, { ok: false, error: "validation" satisfies LeadHandlerError, fields: result.errors });
-    }
-
+    // Configuration before validation: a deployment without the LMS variables cannot take any lead, so every
+    // request says so, including a deliberately invalid one from monitoring, which then never has to send a real lead.
     const env = options.env ?? process.env;
     const lms = readLmsConfig(env);
     if (!lms) {
       console.error(`[lp-core] ${options.source}: LMS_LEAD_URL or LMS_FORM_ALIAS is not set; cannot deliver the lead.`);
-      return reply(500, { ok: false, error: "server" satisfies LeadHandlerError });
+      return reply(500, {
+        ok: false,
+        error: "server" satisfies LeadHandlerError,
+        reason: "lms_not_configured" satisfies LeadServerErrorReason,
+      });
+    }
+
+    const result = validateLead(options.schema, body);
+    if (!result.ok) {
+      return reply(400, { ok: false, error: "validation" satisfies LeadHandlerError, fields: result.errors });
     }
 
     const payload = buildLeadPayload(result.lead, {
@@ -80,7 +92,11 @@ export function createLeadHandler<L extends string>(options: LeadHandlerOptions<
     });
     const delivery = await sendLeadToLms(payload, lms, options.fetchImpl ?? fetch);
     if (!delivery.ok) {
-      return reply(502, { ok: false, error: "server" satisfies LeadHandlerError });
+      return reply(502, {
+        ok: false,
+        error: "server" satisfies LeadHandlerError,
+        reason: `lms_${delivery.reason}` satisfies LeadServerErrorReason,
+      });
     }
     return reply(200, { ok: true });
   };

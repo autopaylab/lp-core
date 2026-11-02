@@ -4,6 +4,14 @@ All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); 
 
 ## Unreleased
 
+### Added
+
+- `createLeadHandler`: a "server" error now carries a `reason` (`lms_not_configured`, `lms_rejected`, `lms_bad_response`, `lms_network`, `lms_timeout`; type `LeadServerErrorReason`), so a missing configuration can be told apart from an LMS failure without server logs. `error` stays `"server"`, and forms need no change.
+
+### Changed
+
+- `createLeadHandler` checks the LMS configuration before validating the lead. A deployment without `LMS_LEAD_URL`/`LMS_FORM_ALIAS` now answers every submission with 500 `lms_not_configured`, an invalid one included, so a monitoring request with a deliberately invalid e-mail detects the misconfiguration without sending a real lead (ai.autopay.pl, 2026-11-02: leads failed unnoticed with the variables missing in Production).
+
 ### Fixed
 
 - `assertNoPlaceholdersWhenPublic` checks string values only, for the markers the templates write (`PLACEHOLDER:` and `/placeholders/` paths), and reports the path of the first hit (e.g. `site.hero.title`). It used to match the bare word "placeholder" anywhere in the serialized content, keys included, so a field named `messagePlaceholder` blocked a public build of a finished page (ai.autopay.pl, 2026-11-02).
