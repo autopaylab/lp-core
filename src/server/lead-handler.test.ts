@@ -91,14 +91,31 @@ describe("createLeadHandler", () => {
   it("reports a server error when the LMS isn't configured", async () => {
     const response = await post(valid, undefined, handler({ env: { LMS_LEAD_URL: env.LMS_LEAD_URL } }));
     expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ ok: false, error: "server", reason: "lms_not_configured" });
     expect(lmsFetch).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalled();
+  });
+
+  it("reports a missing LMS configuration even for an invalid lead, so monitoring needs no real lead", async () => {
+    const response = await post({ ...valid, email: "not-an-email" }, undefined, handler({ env: {} }));
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ ok: false, error: "server", reason: "lms_not_configured" });
+    expect(lmsFetch).not.toHaveBeenCalled();
   });
 
   it("reports a server error when the LMS rejects the lead", async () => {
     lmsFetch.mockImplementation(async () => lmsResponse({ status: "FAILURE" }));
     const response = await post(valid);
     expect(response.status).toBe(502);
-    expect(await response.json()).toEqual({ ok: false, error: "server" });
+    expect(await response.json()).toEqual({ ok: false, error: "server", reason: "lms_rejected" });
+  });
+
+  it("tells an unreachable LMS apart from a rejection", async () => {
+    lmsFetch.mockImplementation(async () => {
+      throw new TypeError("fetch failed");
+    });
+    const response = await post(valid);
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ ok: false, error: "server", reason: "lms_network" });
   });
 });

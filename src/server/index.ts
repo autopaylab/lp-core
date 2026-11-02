@@ -6,7 +6,7 @@
  */
 export { isAuthorized, readBasicAuthCredentials, type BasicAuthCredentials } from "./basic-auth";
 export { createLaunchGate, type LaunchGate, type LaunchGateOptions } from "./launch-gate";
-export { createLeadHandler, type LeadHandlerError, type LeadHandlerOptions } from "./lead-handler";
+export { createLeadHandler, type LeadHandlerError, type LeadHandlerOptions, type LeadServerErrorReason } from "./lead-handler";
 export * from "../lead";
 export { buildLeadPayload, readLmsConfig, sendLeadToLms, type LeadPayload, type LeadPayloadOptions, type LmsConfig, type LmsResult } from "./lms";
 export { assertNoPlaceholdersWhenPublic } from "./placeholders";
