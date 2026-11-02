@@ -239,15 +239,19 @@ function createLeadHandler(options) {
     if (body.hp_field) {
       return reply(200, { ok: true });
     }
-    const result = validateLead(options.schema, body);
-    if (!result.ok) {
-      return reply(400, { ok: false, error: "validation", fields: result.errors });
-    }
     const env = options.env ?? process.env;
     const lms = readLmsConfig(env);
     if (!lms) {
       console.error(`[lp-core] ${options.source}: LMS_LEAD_URL or LMS_FORM_ALIAS is not set; cannot deliver the lead.`);
-      return reply(500, { ok: false, error: "server" });
+      return reply(500, {
+        ok: false,
+        error: "server",
+        reason: "lms_not_configured"
+      });
+    }
+    const result = validateLead(options.schema, body);
+    if (!result.ok) {
+      return reply(400, { ok: false, error: "validation", fields: result.errors });
     }
     const payload = buildLeadPayload(result.lead, {
       formAlias: lms.formAlias,
@@ -256,7 +260,11 @@ function createLeadHandler(options) {
     });
     const delivery = await sendLeadToLms(payload, lms, options.fetchImpl ?? fetch);
     if (!delivery.ok) {
-      return reply(502, { ok: false, error: "server" });
+      return reply(502, {
+        ok: false,
+        error: "server",
+        reason: `lms_${delivery.reason}`
+      });
     }
     return reply(200, { ok: true });
   };
