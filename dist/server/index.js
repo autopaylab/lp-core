@@ -263,14 +263,26 @@ function createLeadHandler(options) {
 }
 
 // src/server/placeholders.ts
-var PLACEHOLDER_PATTERN = /placeholder/i;
+var PLACEHOLDER_MARKERS = [/PLACEHOLDER:/i, /\/placeholders\//];
+function findPlaceholder(value, path, seen) {
+  if (typeof value === "string") {
+    return PLACEHOLDER_MARKERS.some((marker) => marker.test(value)) ? { path, value } : null;
+  }
+  if (value === null || typeof value !== "object" || seen.has(value)) return null;
+  seen.add(value);
+  const entries = Array.isArray(value) ? value.map((item, index) => [String(index), item]) : Object.entries(value);
+  for (const [key, child] of entries) {
+    const found = findPlaceholder(child, path ? `${path}.${key}` : key, seen);
+    if (found) return found;
+  }
+  return null;
+}
 function assertNoPlaceholdersWhenPublic(content, isPublic) {
   if (!isPublic) return;
-  const serialized = JSON.stringify(content) ?? "";
-  const match = serialized.match(new RegExp(`.{0,60}${PLACEHOLDER_PATTERN.source}.{0,60}`, "i"));
-  if (match) {
+  const found = findPlaceholder(content, "", /* @__PURE__ */ new WeakSet());
+  if (found) {
     throw new Error(
-      `[lp-core] SITE_IS_PUBLIC is "true" but page content still contains a placeholder near: ${match[0]}. Fill it in before the public launch.`
+      `[lp-core] SITE_IS_PUBLIC is "true" but page content still contains a placeholder at ${found.path || "(root)"}: ${JSON.stringify(found.value.slice(0, 120))}. Fill it in before the public launch.`
     );
   }
 }

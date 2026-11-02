@@ -121,6 +121,9 @@ declare function sendLeadToLms(payload: LeadPayload, config: LmsConfig, fetchImp
  * still missing:
  *
  *   assertNoPlaceholdersWhenPublic(content, isSitePublic());
+ *
+ * A placeholder is a string value containing "PLACEHOLDER:" or a "/placeholders/" path. Keys are never checked,
+ * so content fields may be named after what they hold (e.g. `messagePlaceholder` for an input's hint text).
  */
 declare function assertNoPlaceholdersWhenPublic(content: unknown, isPublic: boolean): void;
 
