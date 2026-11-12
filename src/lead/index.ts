@@ -18,3 +18,9 @@ export {
   type LeadSchemaOptions,
   type LeadValidation,
 } from "./lead-schema";
+export {
+  AUTOPAY_DATA_CONTROLLER_NOTICE,
+  AUTOPAY_MARKETING_CONSENT,
+  AUTOPAY_PRIVACY_POLICY_URL,
+  type DataControllerNotice,
+} from "./legal-texts";

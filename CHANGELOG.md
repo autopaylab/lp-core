@@ -2,6 +2,13 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## Unreleased
+
+### Added
+
+- Legal texts for every form, approved by Autopay's legal team on 2026-11-12, exported from `@autopaylab/lp-core/lead`: `AUTOPAY_MARKETING_CONSENT` (checkbox label and stored `consentText`), `AUTOPAY_DATA_CONTROLLER_NOTICE` (short data-controller notice with a link to the privacy policy) and `AUTOPAY_PRIVACY_POLICY_URL` (the privacy-policy PDF), in Polish and English. Tests pin the Polish wording.
+- `defineLeadSchema({ isMarketingConsentRequired: true })`: the form cannot be sent without the marketing consent; `validateLead` returns `marketing_consent: "required"`. Defaults to `false`, so existing pages keep their behaviour.
+
 ## 0.5.0 - 2026-11-12
 
 ### Added
