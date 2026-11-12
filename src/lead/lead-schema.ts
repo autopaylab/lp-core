@@ -43,6 +43,7 @@ export interface LeadSchema<L extends string = string, F extends ExtraFields = E
   locales: readonly L[];
   defaultLocale: L;
   messageMaxLength: number;
+  isMarketingConsentRequired: boolean;
   fields: F;
 }
 
@@ -53,6 +54,11 @@ export interface LeadSchemaOptions<L extends string, F extends ExtraFields> {
   defaultLocale?: L;
   /** Defaults to 1000 characters. */
   messageMaxLength?: number;
+  /**
+   * When true, the form cannot be sent without the marketing consent (Autopay legal, 2026-11-12: every form
+   * carries it). Defaults to false, the behaviour before 0.6.0.
+   */
+  isMarketingConsentRequired?: boolean;
   /** Landing-page-specific fields, keyed by their snake_case name. */
   fields?: F;
 }
@@ -109,6 +115,7 @@ export function defineLeadSchema<L extends string, F extends ExtraFields = Recor
     locales: options.locales,
     defaultLocale,
     messageMaxLength: options.messageMaxLength ?? 1000,
+    isMarketingConsentRequired: options.isMarketingConsentRequired ?? false,
     fields,
   };
 }
@@ -148,6 +155,10 @@ export function validateLead<L extends string>(schema: LeadSchema<L>, input: unk
   const [message, messageError] = validateText(body.message, { kind: "textarea", maxLength: schema.messageMaxLength });
   if (messageError) errors.message = messageError;
 
+  // Only an explicit true counts as consent; "true", 1 and undefined do not.
+  const marketingConsent = body.marketing_consent === true;
+  if (schema.isMarketingConsentRequired && !marketingConsent) errors.marketing_consent = "required";
+
   const fields: Record<string, FieldValue> = {};
   for (const [name, spec] of Object.entries(schema.fields)) {
     if (spec.kind === "checkbox") {
@@ -169,8 +180,7 @@ export function validateLead<L extends string>(schema: LeadSchema<L>, input: unk
     lead: {
       email,
       message,
-      // Only an explicit true counts as consent; "true", 1 and undefined do not.
-      marketing_consent: body.marketing_consent === true,
+      marketing_consent: marketingConsent,
       locale,
       fields,
     },

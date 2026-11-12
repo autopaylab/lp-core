@@ -118,3 +118,25 @@ describe("validateLead: extra fields", () => {
     expect(result.ok && Object.keys(result.lead.fields)).toEqual(["company", "phone", "needs", "terms_accepted"]);
   });
 });
+
+describe("validateLead: required marketing consent", () => {
+  const required = defineLeadSchema({ locales: ["pl"], isMarketingConsentRequired: true });
+
+  it("is optional unless the page asks for it", () => {
+    expect(schema.isMarketingConsentRequired).toBe(false);
+    expect(validateLead(schema, { email: "anna@firma.pl" }).ok).toBe(true);
+  });
+
+  it("rejects a lead without an explicit true consent when required", () => {
+    expect(validateLead(required, { email: "anna@firma.pl" })).toEqual({ ok: false, errors: { marketing_consent: "required" } });
+    expect(validateLead(required, { email: "anna@firma.pl", marketing_consent: "true" })).toEqual({
+      ok: false,
+      errors: { marketing_consent: "required" },
+    });
+  });
+
+  it("accepts the lead with the consent given", () => {
+    const result = validateLead(required, { email: "anna@firma.pl", marketing_consent: true });
+    expect(result.ok && result.lead.marketing_consent).toBe(true);
+  });
+});
