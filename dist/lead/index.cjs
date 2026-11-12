@@ -116,7 +116,10 @@ function validateLead(schema, input) {
 }
 
 // src/lead/legal-texts.ts
-var AUTOPAY_PRIVACY_POLICY_URL = "https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf";
+var AUTOPAY_PRIVACY_POLICY_URL = {
+  pl: "https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf",
+  en: "https://autopay.eu/storage/app/media/Autopay_pl/Dokumenty/privacy_policy.pdf"
+};
 var AUTOPAY_MARKETING_CONSENT = {
   pl: "Wyra\u017Cam zgod\u0119 na przetwarzanie moich danych osobowych w zakresie adresu e-mail w celu marketingu bezpo\u015Bredniego przez Autopay S.A. jako Administratora danych w celu przekazywania mi informacji handlowej, w tym marketingu bezpo\u015Bredniego o produktach i us\u0142ugach oferowanych przez Autopay.",
   en: "I consent to the processing of my personal data, limited to my email address, by Autopay S.A. as the data controller for direct marketing purposes, in order to send me commercial information, including direct marketing about products and services offered by Autopay."

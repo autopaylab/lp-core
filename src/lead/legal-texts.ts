@@ -6,8 +6,14 @@
  * The English versions are translations of the Polish originals, confirmed with legal by the process owner.
  */
 
-/** Autopay S.A. privacy policy (PDF), linked from the data-controller notice. */
-export const AUTOPAY_PRIVACY_POLICY_URL = "https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf";
+/**
+ * Autopay S.A. privacy policy (PDF) per page language. Every privacy-policy link on a landing page (the form's
+ * data-controller notice, the footer) goes here and opens in a new tab (process owner's rule, 2026-11-12).
+ */
+export const AUTOPAY_PRIVACY_POLICY_URL = {
+  pl: "https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf",
+  en: "https://autopay.eu/storage/app/media/Autopay_pl/Dokumenty/privacy_policy.pdf",
+} as const;
 
 /**
  * Marketing consent next to the form's checkbox. The checkbox starts unchecked: a pre-ticked box is not valid
@@ -21,7 +27,7 @@ export const AUTOPAY_MARKETING_CONSENT = {
 export interface DataControllerNotice {
   /** Text before the privacy-policy link. */
   lead: string;
-  /** The link text; the link goes to `AUTOPAY_PRIVACY_POLICY_URL`. */
+  /** The link text; the link goes to `AUTOPAY_PRIVACY_POLICY_URL` of the same language. */
   linkLabel: string;
   /** Text after the link. */
   trail: string;
