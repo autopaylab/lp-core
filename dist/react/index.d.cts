@@ -2,12 +2,49 @@ import * as react from 'react';
 import { ReactNode } from 'react';
 import { E as EnvVars } from '../site-config-CegvYjda.cjs';
 
+/**
+ * Window property the script below keeps in sync with the visitor's GA
+ * consent. The track helpers read it: window.gtag exists from the first
+ * line of the script (Consent Mode needs it before consent), so "gtag is
+ * defined" says nothing about consent, and anything pushed to dataLayer
+ * before consent would be sent once gtag.js loads.
+ */
+declare const GA_CONSENT_GRANTED_FLAG = "__lpCoreIsGaConsentGranted";
+/**
+ * GA4 via gtag.js (no Google Tag Manager container) with Google Consent
+ * Mode v2 in Basic mode:
+ *
+ * 1. Right away: dataLayer/gtag and `consent default` with everything
+ *    denied. Nothing is requested from Google at this point.
+ * 2. Once ConsentManager reports consent for the GA vendor:
+ *    `consent update` analytics_storage granted, then `js` + `config`, then
+ *    gtag.js is loaded. Before that moment no Google request happens at all,
+ *    the same guarantee buildMatomoScript gives for Matomo.
+ * 3. If consent is later withdrawn: `consent update` analytics_storage
+ *    denied, and Google's documented ga-disable-<id> switch, so the already
+ *    loaded gtag.js stops sending. Granting again re-enables it without
+ *    loading gtag.js twice.
+ *
+ * ad_storage, ad_user_data and ad_personalization are denied in every
+ * update: these pages run no ads.
+ *
+ * Consent is read the same way as for Matomo, by polling
+ * window.cmpmngr.getVendorConsent(vendorId); see matomo-script.ts for why
+ * the TCF listener and ConsentManager's declarative blocking are not used.
+ * Matomo stops polling once consent is given; this keeps polling (one
+ * boolean call every 500 ms) because no ConsentManager event for withdrawal
+ * has been verified on Autopay's accounts.
+ */
+declare function buildGoogleAnalyticsScript(measurementId: string, cmpVendorId: string): string;
+
 type MatomoQueue = {
     push: (command: unknown[]) => unknown;
 };
 declare global {
     interface Window {
         _paq?: MatomoQueue;
+        gtag?: (...args: unknown[]) => void;
+        [GA_CONSENT_GRANTED_FLAG]?: boolean;
     }
 }
 type FormSubmitResult = "success" | "validation" | "rate_limited" | "server" | "network";
@@ -16,12 +53,18 @@ type FormSubmitResult = "success" | "validation" | "rate_limited" | "server" | "
  * by the script from buildMatomoScript, which runs only after ConsentManager
  * reports consent for the Matomo vendor. Before that this is a no-op: events
  * are not queued, so nothing that happened before consent is sent later.
+ * Matomo only; the named helpers below also report to GA4.
  */
 declare function trackEvent(category: string, action: string, name?: string): void;
 /** `placement` names where on the page the CTA sits, e.g. "hero" or "footer". */
 declare function trackCtaClick(placement: string): void;
+/** GA4 name is application_start: form_start is reserved by GA4 Enhanced Measurement. */
 declare function trackFormStart(): void;
-/** Success and each failure kind are separate so a broken LMS setup shows up as a spike in "server". */
+/**
+ * Success and each failure kind are separate so a broken LMS setup shows up
+ * as a spike in "server". In GA4 success is the recommended generate_lead
+ * event and failures are application_error with the same reason.
+ */
 declare function trackFormSubmit(result: FormSubmitResult): void;
 
 type ConsentManagerApi = (command: string, ...args: unknown[]) => unknown;
@@ -107,7 +150,13 @@ interface RootDocumentProps {
  * Matomo renders only when both NEXT_PUBLIC_MATOMO_SITE_ID and
  * NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID are set, so a page that hasn't wired up
  * analytics yet doesn't ship a script that immediately no-ops.
+ *
+ * GA4 follows the same rule with NEXT_PUBLIC_GA_MEASUREMENT_ID and
+ * NEXT_PUBLIC_GA_CMP_VENDOR_ID. Its script goes in <head>, so the Consent
+ * Mode default is set before the consent banner script runs, while the
+ * banner stays the first child of <body>. It requests nothing from Google
+ * before consent (see buildGoogleAnalyticsScript).
  */
 declare function RootDocument({ locale, skipLinkLabel, bannerLocale, children, env, bodyClassName }: RootDocumentProps): react.JSX.Element;
 
-export { type FormSubmitResult, MAIN_CONTENT_ID, RootDocument, type RootDocumentProps, buildMatomoScript, openCookieSettings, trackCtaClick, trackEvent, trackFormStart, trackFormSubmit };
+export { type FormSubmitResult, MAIN_CONTENT_ID, RootDocument, type RootDocumentProps, buildGoogleAnalyticsScript, buildMatomoScript, openCookieSettings, trackCtaClick, trackEvent, trackFormStart, trackFormSubmit };

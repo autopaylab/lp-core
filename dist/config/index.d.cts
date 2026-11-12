@@ -32,8 +32,10 @@ interface ThirdPartyOrigins {
  */
 declare function readThirdPartyOrigins(env?: EnvVars): ThirdPartyOrigins;
 /**
- * Content Security Policy shared by every landing page. Only ConsentManager
- * and Matomo are allowed as third parties; adding another origin is a change
+ * Content Security Policy shared by every landing page. Only ConsentManager,
+ * Matomo and, when configured (see readGoogleAnalyticsConfig), Google
+ * Analytics are allowed as third parties. Without GA the policy is exactly
+ * what it was before GA support existed; adding another origin is a change
  * to this package, not to a landing page, so the list stays reviewable in
  * one place.
  *
@@ -59,4 +61,28 @@ declare function buildContentSecurityPolicy(env?: EnvVars): string;
  */
 declare function createSecurityHeaders(options?: SecurityHeadersOptions): HttpHeader[];
 
-export { DEFAULT_CONSENT_MANAGER_CDN, DEFAULT_CONSENT_MANAGER_HOST, DEFAULT_MATOMO_ORIGIN, EnvVars, type HttpHeader, type SecurityHeadersOptions, buildContentSecurityPolicy, createSecurityHeaders, readThirdPartyOrigins };
+interface GoogleAnalyticsConfig {
+    /** GA4 measurement id, e.g. "G-ABC123". */
+    measurementId: string;
+    /** ConsentManager vendor id whose consent gates GA4. */
+    cmpVendorId: string;
+}
+/** Where gtag.js is loaded from. */
+declare const GOOGLE_TAG_SCRIPT_ORIGIN = "https://www.googletagmanager.com";
+/**
+ * Hosts gtag.js sends GA4 measurements to. Narrower than the full list in
+ * Google's CSP guide (which adds *.google.com and the Ads endpoints): these
+ * pages never enable Ads features, and ad_* consent is always denied.
+ */
+declare const GOOGLE_ANALYTICS_CONNECT_ORIGINS: readonly ["https://*.google-analytics.com", "https://*.analytics.google.com", "https://*.googletagmanager.com"];
+/**
+ * GA4 runs only when both NEXT_PUBLIC_GA_MEASUREMENT_ID and
+ * NEXT_PUBLIC_GA_CMP_VENDOR_ID are set, mirroring Matomo. A malformed
+ * measurement id throws even when the vendor id is missing, so a typo fails
+ * the build (this is read from next.config.ts via createSecurityHeaders, and
+ * again when RootDocument renders) instead of shipping a tag that never
+ * reports.
+ */
+declare function readGoogleAnalyticsConfig(env?: EnvVars): GoogleAnalyticsConfig | null;
+
+export { DEFAULT_CONSENT_MANAGER_CDN, DEFAULT_CONSENT_MANAGER_HOST, DEFAULT_MATOMO_ORIGIN, EnvVars, GOOGLE_ANALYTICS_CONNECT_ORIGINS, GOOGLE_TAG_SCRIPT_ORIGIN, type GoogleAnalyticsConfig, type HttpHeader, type SecurityHeadersOptions, buildContentSecurityPolicy, createSecurityHeaders, readGoogleAnalyticsConfig, readThirdPartyOrigins };
