@@ -94,8 +94,14 @@ declare function validateLead<L extends string>(schema: LeadSchema<L>, input: un
  *
  * The English versions are translations of the Polish originals, confirmed with legal by the process owner.
  */
-/** Autopay S.A. privacy policy (PDF), linked from the data-controller notice. */
-declare const AUTOPAY_PRIVACY_POLICY_URL = "https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf";
+/**
+ * Autopay S.A. privacy policy (PDF) per page language. Every privacy-policy link on a landing page (the form's
+ * data-controller notice, the footer) goes here and opens in a new tab (process owner's rule, 2026-11-12).
+ */
+declare const AUTOPAY_PRIVACY_POLICY_URL: {
+    readonly pl: "https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf";
+    readonly en: "https://autopay.eu/storage/app/media/Autopay_pl/Dokumenty/privacy_policy.pdf";
+};
 /**
  * Marketing consent next to the form's checkbox. The checkbox starts unchecked: a pre-ticked box is not valid
  * consent under the GDPR. Pass it as `consentText` to `createLeadHandler`, so the lead stores what the person saw.
@@ -107,7 +113,7 @@ declare const AUTOPAY_MARKETING_CONSENT: {
 interface DataControllerNotice {
     /** Text before the privacy-policy link. */
     lead: string;
-    /** The link text; the link goes to `AUTOPAY_PRIVACY_POLICY_URL`. */
+    /** The link text; the link goes to `AUTOPAY_PRIVACY_POLICY_URL` of the same language. */
     linkLabel: string;
     /** Text after the link. */
     trail: string;
