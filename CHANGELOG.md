@@ -2,6 +2,12 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## 0.7.0 - 2026-11-12
+
+### Changed (breaking)
+
+- `AUTOPAY_PRIVACY_POLICY_URL` is now per language, `{ pl, en }`: the Polish privacy policy on autopay.pl, the English one at https://autopay.eu/storage/app/media/Autopay_pl/Dokumenty/privacy_policy.pdf (process owner, 2026-11-12). Every privacy-policy link on a page, the footer's included, uses it and opens in a new tab. Replace `AUTOPAY_PRIVACY_POLICY_URL` with `AUTOPAY_PRIVACY_POLICY_URL[locale]`.
+
 ## 0.6.0 - 2026-11-12
 
 ### Added
