@@ -20,6 +20,9 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/lead/index.ts
 var lead_exports = {};
 __export(lead_exports, {
+  AUTOPAY_DATA_CONTROLLER_NOTICE: () => AUTOPAY_DATA_CONTROLLER_NOTICE,
+  AUTOPAY_MARKETING_CONSENT: () => AUTOPAY_MARKETING_CONSENT,
+  AUTOPAY_PRIVACY_POLICY_URL: () => AUTOPAY_PRIVACY_POLICY_URL,
   BASE_FIELD_NAMES: () => BASE_FIELD_NAMES,
   EMAIL_MAX_LENGTH: () => EMAIL_MAX_LENGTH,
   EMAIL_PATTERN: () => EMAIL_PATTERN,
@@ -61,6 +64,7 @@ function defineLeadSchema(options) {
     locales: options.locales,
     defaultLocale,
     messageMaxLength: options.messageMaxLength ?? 1e3,
+    isMarketingConsentRequired: options.isMarketingConsentRequired ?? false,
     fields
   };
 }
@@ -83,6 +87,8 @@ function validateLead(schema, input) {
   if (emailError) errors.email = emailError;
   const [message, messageError] = validateText(body.message, { kind: "textarea", maxLength: schema.messageMaxLength });
   if (messageError) errors.message = messageError;
+  const marketingConsent = body.marketing_consent === true;
+  if (schema.isMarketingConsentRequired && !marketingConsent) errors.marketing_consent = "required";
   const fields = {};
   for (const [name, spec] of Object.entries(schema.fields)) {
     if (spec.kind === "checkbox") {
@@ -102,15 +108,36 @@ function validateLead(schema, input) {
     lead: {
       email,
       message,
-      // Only an explicit true counts as consent; "true", 1 and undefined do not.
-      marketing_consent: body.marketing_consent === true,
+      marketing_consent: marketingConsent,
       locale,
       fields
     }
   };
 }
+
+// src/lead/legal-texts.ts
+var AUTOPAY_PRIVACY_POLICY_URL = "https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf";
+var AUTOPAY_MARKETING_CONSENT = {
+  pl: "Wyra\u017Cam zgod\u0119 na przetwarzanie moich danych osobowych w zakresie adresu e-mail w celu marketingu bezpo\u015Bredniego przez Autopay S.A. jako Administratora danych w celu przekazywania mi informacji handlowej, w tym marketingu bezpo\u015Bredniego o produktach i us\u0142ugach oferowanych przez Autopay.",
+  en: "I consent to the processing of my personal data, limited to my email address, by Autopay S.A. as the data controller for direct marketing purposes, in order to send me commercial information, including direct marketing about products and services offered by Autopay."
+};
+var AUTOPAY_DATA_CONTROLLER_NOTICE = {
+  pl: {
+    lead: "Administratorem Twoich danych osobowych jest Autopay S.A. Szczeg\xF3\u0142owe informacje dotycz\u0105ce przetwarzania danych osobowych znajduj\u0105 si\u0119 w",
+    linkLabel: "Polityce prywatno\u015Bci Autopay S.A.",
+    trail: ""
+  },
+  en: {
+    lead: "The controller of your personal data is Autopay S.A. Detailed information on the processing of personal data is available in the",
+    linkLabel: "Autopay S.A. Privacy Policy",
+    trail: "."
+  }
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AUTOPAY_DATA_CONTROLLER_NOTICE,
+  AUTOPAY_MARKETING_CONSENT,
+  AUTOPAY_PRIVACY_POLICY_URL,
   BASE_FIELD_NAMES,
   EMAIL_MAX_LENGTH,
   EMAIL_PATTERN,
