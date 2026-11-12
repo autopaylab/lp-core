@@ -15,7 +15,8 @@ describe("legal texts", () => {
     expect(`${lead} ${linkLabel}${trail}`).toBe(
       "Administratorem Twoich danych osobowych jest Autopay S.A. Szczegółowe informacje dotyczące przetwarzania danych osobowych znajdują się w Polityce prywatności Autopay S.A.",
     );
-    expect(AUTOPAY_PRIVACY_POLICY_URL).toBe("https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf");
+    expect(AUTOPAY_PRIVACY_POLICY_URL.pl).toBe("https://autopay.pl/storage/app/media/Autopay_pl/Dokumenty/polityka-prywatnosci.pdf");
+    expect(AUTOPAY_PRIVACY_POLICY_URL.en).toBe("https://autopay.eu/storage/app/media/Autopay_pl/Dokumenty/privacy_policy.pdf");
   });
 
   it("has an English version of each text, with no placeholder left", () => {
