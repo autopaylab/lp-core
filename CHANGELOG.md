@@ -2,7 +2,7 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
-## 0.5.0 - Unreleased
+## 0.5.0 - 2026-11-12
 
 ### Added
 
