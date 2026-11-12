@@ -19,4 +19,10 @@ export {
   readGoogleAnalyticsConfig,
   type GoogleAnalyticsConfig,
 } from "./google-analytics";
+export {
+  AUTOPAY_CMP_CDID,
+  AUTOPAY_MATOMO_CMP_VENDOR_ID,
+  readConsentManagerConfig,
+  type ConsentManagerConfig,
+} from "./consent-manager";
 export { isIndexable, isSitePublic, type EnvVars } from "./site-config";

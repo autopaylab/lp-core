@@ -150,6 +150,16 @@ function buildMatomoScript(matomoSiteId, matomoOrigin, cmpVendorId) {
 // src/react/RootDocument.tsx
 import { CookieConsentScript } from "@autopaylab/landing-design-system/organisms";
 
+// src/config/consent-manager.ts
+var AUTOPAY_CMP_CDID = "136af463a10ba";
+var AUTOPAY_MATOMO_CMP_VENDOR_ID = "s2589";
+function readConsentManagerConfig(env) {
+  const cdid = env.NEXT_PUBLIC_CMP_CDID || AUTOPAY_CMP_CDID;
+  const isStandardBanner = cdid === AUTOPAY_CMP_CDID;
+  const matomoVendorId = env.NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID || (isStandardBanner ? AUTOPAY_MATOMO_CMP_VENDOR_ID : "");
+  return { cdid, matomoVendorId };
+}
+
 // src/config/security-headers.ts
 var DEFAULT_MATOMO_ORIGIN = "https://piwik.blue.pl";
 
@@ -164,8 +174,7 @@ var SKIP_LINK_CSS = `
 function RootDocument({ locale, skipLinkLabel, bannerLocale, children, env = process.env, bodyClassName }) {
   const matomoSiteId = env.NEXT_PUBLIC_MATOMO_SITE_ID ?? "";
   const matomoOrigin = env.NEXT_PUBLIC_MATOMO_ORIGIN || DEFAULT_MATOMO_ORIGIN;
-  const matomoCmpVendorId = env.NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID ?? "";
-  const cmpCdid = env.NEXT_PUBLIC_CMP_CDID || void 0;
+  const { cdid: cmpCdid, matomoVendorId: matomoCmpVendorId } = readConsentManagerConfig(env);
   const googleAnalytics = readGoogleAnalyticsConfig(env);
   return /* @__PURE__ */ jsxs("html", { lang: locale, children: [
     googleAnalytics ? /* @__PURE__ */ jsx("head", { children: /* @__PURE__ */ jsx(
