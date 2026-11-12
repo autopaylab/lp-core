@@ -88,19 +88,17 @@ Why Basic, not Advanced: in Advanced mode gtag.js loads on every visit and sends
 
 ```ts
 // src/content/lead.ts
-import { defineLeadSchema } from "@autopaylab/lp-core/lead";
+import { AUTOPAY_MARKETING_CONSENT, defineLeadSchema } from "@autopaylab/lp-core/lead";
 
 export const leadSchema = defineLeadSchema({
   locales: ["pl", "en"],
+  isMarketingConsentRequired: true,
   fields: {
     company: { kind: "text", maxLength: 200, required: true },
   },
 });
 
-export const consentText = {
-  pl: "Wyrażam zgodę na kontakt marketingowy ...",
-  en: "I agree to marketing contact ...",
-};
+export const consentText = AUTOPAY_MARKETING_CONSENT;
 
 // src/app/api/apply/route.ts
 import { createLeadHandler } from "@autopaylab/lp-core/server";
@@ -110,6 +108,8 @@ export const POST = createLeadHandler({ source: "my-landing", schema: leadSchema
 ```
 
 The form posts JSON with the same snake_case keys: base fields `email`, `message`, `marketing_consent` (boolean), `locale`, the honeypot `hp_field`, plus the schema's extra fields. The handler answers `{ ok: true }`, or `{ ok: false, error, fields? }` with `error` one of `rate_limited` (429), `invalid_json` (400), `validation` (400, with per-field codes `required` | `invalid` | `tooLong`), `server` (500 when the LMS is not configured, 502 when it rejects the lead).
+
+**Legal texts.** Every form shows the marketing consent and the data-controller notice approved by Autopay's legal team (2026-11-12), imported from `@autopaylab/lp-core/lead`, never retyped: `AUTOPAY_MARKETING_CONSENT` (label of an unchecked checkbox; also the `consentText` stored with the lead), `AUTOPAY_DATA_CONTROLLER_NOTICE` (`lead`, a link labelled `linkLabel` to `AUTOPAY_PRIVACY_POLICY_URL`, `trail`), in `pl` and `en`. With `isMarketingConsentRequired: true` the form cannot be sent without the consent (`marketing_consent: "required"`); it defaults to `false`. A page may keep other consents as its own checkbox fields.
 
 Delivery needs `LMS_LEAD_URL` and `LMS_FORM_ALIAS`. The lead sent to the LMS always has `_form`, `email`, `message`, `marketing_consent` (`tak`/`nie`), `marketing_consent_text` (the exact wording the applicant saw), `locale`, `source`, then the extra fields. Field names are the contract with the LMS form: after adding or renaming one, re-learn the form in the LMS panel (`learn` mode, one submission, then `restrict`).
 
