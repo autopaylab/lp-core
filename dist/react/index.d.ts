@@ -147,9 +147,11 @@ interface RootDocumentProps {
  * the consent banner as the very first child of <body> (before anything can
  * set a cookie or run a tracker), consent-gated Matomo, and the skip link.
  *
- * Matomo renders only when both NEXT_PUBLIC_MATOMO_SITE_ID and
- * NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID are set, so a page that hasn't wired up
- * analytics yet doesn't ship a script that immediately no-ops.
+ * The banner is the standard Autopay one (autopaylab.com's ConsentManager
+ * config) unless NEXT_PUBLIC_CMP_CDID names another; see readConsentManagerConfig.
+ * Matomo renders once NEXT_PUBLIC_MATOMO_SITE_ID is set and the banner has a
+ * Matomo vendor id (the standard banner's by default), so a page that hasn't
+ * wired up analytics yet doesn't ship a script that immediately no-ops.
  *
  * GA4 follows the same rule with NEXT_PUBLIC_GA_MEASUREMENT_ID and
  * NEXT_PUBLIC_GA_CMP_VENDOR_ID. Its script goes in <head>, so the Consent

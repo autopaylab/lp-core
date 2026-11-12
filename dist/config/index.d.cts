@@ -85,4 +85,26 @@ declare const GOOGLE_ANALYTICS_CONNECT_ORIGINS: readonly ["https://*.google-anal
  */
 declare function readGoogleAnalyticsConfig(env?: EnvVars): GoogleAnalyticsConfig | null;
 
-export { DEFAULT_CONSENT_MANAGER_CDN, DEFAULT_CONSENT_MANAGER_HOST, DEFAULT_MATOMO_ORIGIN, EnvVars, GOOGLE_ANALYTICS_CONNECT_ORIGINS, GOOGLE_TAG_SCRIPT_ORIGIN, type GoogleAnalyticsConfig, type HttpHeader, type SecurityHeadersOptions, buildContentSecurityPolicy, createSecurityHeaders, readGoogleAnalyticsConfig, readThirdPartyOrigins };
+/**
+ * The cookie banner every Autopay landing page uses: the ConsentManager config running in production on
+ * autopaylab.com (process owner's decision, 2026-11-12). A new page gets it with no setup and no question to
+ * the process owner. Set NEXT_PUBLIC_CMP_CDID only when the process owner decides a page needs a banner of
+ * its own.
+ */
+declare const AUTOPAY_CMP_CDID = "136af463a10ba";
+/** The Matomo (piwik.blue.pl) vendor inside the standard banner's config; gates Matomo on consent. */
+declare const AUTOPAY_MATOMO_CMP_VENDOR_ID = "s2589";
+interface ConsentManagerConfig {
+    /** ConsentManager cmp_cdid: which banner config loads. */
+    cdid: string;
+    /** Matomo's vendor id inside that config; empty when a page's own banner has not named it. */
+    matomoVendorId: string;
+}
+/**
+ * The banner config a page runs with. With no NEXT_PUBLIC_CMP_CDID it is the standard Autopay banner and its
+ * Matomo vendor. A page with its own cdid must also set NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID: a vendor id belongs
+ * to one banner config, and the standard one would never be granted inside another.
+ */
+declare function readConsentManagerConfig(env: EnvVars): ConsentManagerConfig;
+
+export { AUTOPAY_CMP_CDID, AUTOPAY_MATOMO_CMP_VENDOR_ID, type ConsentManagerConfig, DEFAULT_CONSENT_MANAGER_CDN, DEFAULT_CONSENT_MANAGER_HOST, DEFAULT_MATOMO_ORIGIN, EnvVars, GOOGLE_ANALYTICS_CONNECT_ORIGINS, GOOGLE_TAG_SCRIPT_ORIGIN, type GoogleAnalyticsConfig, type HttpHeader, type SecurityHeadersOptions, buildContentSecurityPolicy, createSecurityHeaders, readConsentManagerConfig, readGoogleAnalyticsConfig, readThirdPartyOrigins };

@@ -20,6 +20,8 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/config/index.ts
 var config_exports = {};
 __export(config_exports, {
+  AUTOPAY_CMP_CDID: () => AUTOPAY_CMP_CDID,
+  AUTOPAY_MATOMO_CMP_VENDOR_ID: () => AUTOPAY_MATOMO_CMP_VENDOR_ID,
   DEFAULT_CONSENT_MANAGER_CDN: () => DEFAULT_CONSENT_MANAGER_CDN,
   DEFAULT_CONSENT_MANAGER_HOST: () => DEFAULT_CONSENT_MANAGER_HOST,
   DEFAULT_MATOMO_ORIGIN: () => DEFAULT_MATOMO_ORIGIN,
@@ -29,6 +31,7 @@ __export(config_exports, {
   createSecurityHeaders: () => createSecurityHeaders,
   isIndexable: () => isIndexable,
   isSitePublic: () => isSitePublic,
+  readConsentManagerConfig: () => readConsentManagerConfig,
   readGoogleAnalyticsConfig: () => readGoogleAnalyticsConfig,
   readThirdPartyOrigins: () => readThirdPartyOrigins
 });
@@ -136,8 +139,20 @@ function createSecurityHeaders(options = {}) {
   }
   return headers;
 }
+
+// src/config/consent-manager.ts
+var AUTOPAY_CMP_CDID = "136af463a10ba";
+var AUTOPAY_MATOMO_CMP_VENDOR_ID = "s2589";
+function readConsentManagerConfig(env) {
+  const cdid = env.NEXT_PUBLIC_CMP_CDID || AUTOPAY_CMP_CDID;
+  const isStandardBanner = cdid === AUTOPAY_CMP_CDID;
+  const matomoVendorId = env.NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID || (isStandardBanner ? AUTOPAY_MATOMO_CMP_VENDOR_ID : "");
+  return { cdid, matomoVendorId };
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AUTOPAY_CMP_CDID,
+  AUTOPAY_MATOMO_CMP_VENDOR_ID,
   DEFAULT_CONSENT_MANAGER_CDN,
   DEFAULT_CONSENT_MANAGER_HOST,
   DEFAULT_MATOMO_ORIGIN,
@@ -147,6 +162,7 @@ function createSecurityHeaders(options = {}) {
   createSecurityHeaders,
   isIndexable,
   isSitePublic,
+  readConsentManagerConfig,
   readGoogleAnalyticsConfig,
   readThirdPartyOrigins
 });
