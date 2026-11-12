@@ -2,6 +2,17 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## 0.8.0 - 2026-11-12
+
+### Changed
+
+- Cookie banner: every page runs the standard Autopay banner, the ConsentManager config in production on autopaylab.com (`AUTOPAY_CMP_CDID`, `136af463a10ba`), with no setup (process owner's decision, 2026-11-12). `RootDocument` now passes the cdid explicitly; `NEXT_PUBLIC_CMP_CDID` still overrides it.
+- Matomo needs only `NEXT_PUBLIC_MATOMO_SITE_ID`: with the standard banner the Matomo vendor defaults to `AUTOPAY_MATOMO_CMP_VENDOR_ID` (`s2589`). With a page's own cdid, `NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID` stays required. A page that already sets both behaves as before.
+
+### Added
+
+- `readConsentManagerConfig(env)`, `AUTOPAY_CMP_CDID`, `AUTOPAY_MATOMO_CMP_VENDOR_ID` in `@autopaylab/lp-core/config`.
+
 ## 0.7.0 - 2026-11-12
 
 ### Changed (breaking)
