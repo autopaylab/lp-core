@@ -13,4 +13,10 @@ export {
   type HttpHeader,
   type SecurityHeadersOptions,
 } from "./security-headers";
+export {
+  GOOGLE_ANALYTICS_CONNECT_ORIGINS,
+  GOOGLE_TAG_SCRIPT_ORIGIN,
+  readGoogleAnalyticsConfig,
+  type GoogleAnalyticsConfig,
+} from "./google-analytics";
 export { isIndexable, isSitePublic, type EnvVars } from "./site-config";

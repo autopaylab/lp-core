@@ -1,3 +1,4 @@
+import { GOOGLE_ANALYTICS_CONNECT_ORIGINS, GOOGLE_TAG_SCRIPT_ORIGIN, readGoogleAnalyticsConfig } from "./google-analytics";
 import { type EnvVars, isIndexable } from "./site-config";
 
 /** Defaults for the two third-party origins every Autopay landing page talks to. */
@@ -59,8 +60,10 @@ export function readThirdPartyOrigins(env: EnvVars = process.env): ThirdPartyOri
 }
 
 /**
- * Content Security Policy shared by every landing page. Only ConsentManager
- * and Matomo are allowed as third parties; adding another origin is a change
+ * Content Security Policy shared by every landing page. Only ConsentManager,
+ * Matomo and, when configured (see readGoogleAnalyticsConfig), Google
+ * Analytics are allowed as third parties. Without GA the policy is exactly
+ * what it was before GA support existed; adding another origin is a change
  * to this package, not to a landing page, so the list stays reviewable in
  * one place.
  *
@@ -75,13 +78,17 @@ export function readThirdPartyOrigins(env: EnvVars = process.env): ThirdPartyOri
  */
 export function buildContentSecurityPolicy(env: EnvVars = process.env): string {
   const origins = readThirdPartyOrigins(env);
+  const isGoogleAnalyticsConfigured = readGoogleAnalyticsConfig(env) !== null;
+  const googleScriptSources = isGoogleAnalyticsConfigured ? ` ${GOOGLE_TAG_SCRIPT_ORIGIN}` : "";
+  const googleConnectSources = isGoogleAnalyticsConfigured ? ` ${GOOGLE_ANALYTICS_CONNECT_ORIGINS.join(" ")}` : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}`,
+    `script-src 'self' 'unsafe-inline' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}${googleScriptSources}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",
-    `connect-src 'self' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}`,
+    // img-src already allows any https: source, which covers GA's image hits.
+    `connect-src 'self' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}${googleConnectSources}`,
     `frame-src 'self' ${origins.consentManagerCdn}`,
     "object-src 'none'",
     "base-uri 'self'",
