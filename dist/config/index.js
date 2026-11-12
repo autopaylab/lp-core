@@ -1,3 +1,23 @@
+// src/config/google-analytics.ts
+var GOOGLE_TAG_SCRIPT_ORIGIN = "https://www.googletagmanager.com";
+var GOOGLE_ANALYTICS_CONNECT_ORIGINS = [
+  "https://*.google-analytics.com",
+  "https://*.analytics.google.com",
+  "https://*.googletagmanager.com"
+];
+var MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/;
+function readGoogleAnalyticsConfig(env = process.env) {
+  const measurementId = env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "";
+  const cmpVendorId = env.NEXT_PUBLIC_GA_CMP_VENDOR_ID ?? "";
+  if (measurementId && !MEASUREMENT_ID_PATTERN.test(measurementId)) {
+    throw new Error(
+      `[lp-core] NEXT_PUBLIC_GA_MEASUREMENT_ID must look like "G-" followed by uppercase letters and digits, got ${JSON.stringify(measurementId)}.`
+    );
+  }
+  if (!measurementId || !cmpVendorId) return null;
+  return { measurementId, cmpVendorId };
+}
+
 // src/config/site-config.ts
 function isSitePublic(env = process.env) {
   return env.SITE_IS_PUBLIC === "true";
@@ -35,13 +55,17 @@ function readThirdPartyOrigins(env = process.env) {
 }
 function buildContentSecurityPolicy(env = process.env) {
   const origins = readThirdPartyOrigins(env);
+  const isGoogleAnalyticsConfigured = readGoogleAnalyticsConfig(env) !== null;
+  const googleScriptSources = isGoogleAnalyticsConfigured ? ` ${GOOGLE_TAG_SCRIPT_ORIGIN}` : "";
+  const googleConnectSources = isGoogleAnalyticsConfigured ? ` ${GOOGLE_ANALYTICS_CONNECT_ORIGINS.join(" ")}` : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}`,
+    `script-src 'self' 'unsafe-inline' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}${googleScriptSources}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",
-    `connect-src 'self' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}`,
+    // img-src already allows any https: source, which covers GA's image hits.
+    `connect-src 'self' ${origins.consentManagerCdn} ${origins.consentManagerDelivery} ${origins.matomoOrigin}${googleConnectSources}`,
     `frame-src 'self' ${origins.consentManagerCdn}`,
     "object-src 'none'",
     "base-uri 'self'",
@@ -80,10 +104,13 @@ export {
   DEFAULT_CONSENT_MANAGER_CDN,
   DEFAULT_CONSENT_MANAGER_HOST,
   DEFAULT_MATOMO_ORIGIN,
+  GOOGLE_ANALYTICS_CONNECT_ORIGINS,
+  GOOGLE_TAG_SCRIPT_ORIGIN,
   buildContentSecurityPolicy,
   createSecurityHeaders,
   isIndexable,
   isSitePublic,
+  readGoogleAnalyticsConfig,
   readThirdPartyOrigins
 };
 //# sourceMappingURL=index.js.map

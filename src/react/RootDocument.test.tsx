@@ -29,6 +29,43 @@ describe("RootDocument", () => {
     expect(html).toContain("https://piwik.blue.pl");
   });
 
+  it("adds GA4 only when both measurement id and vendor id are set", () => {
+    expect(render({})).not.toContain("google-analytics");
+    expect(render({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-KHZLVW1KH1" })).not.toContain("google-analytics");
+    expect(render({ NEXT_PUBLIC_GA_CMP_VENDOR_ID: "s26" })).not.toContain("google-analytics");
+    const html = render({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-KHZLVW1KH1", NEXT_PUBLIC_GA_CMP_VENDOR_ID: "s26" });
+    expect(html).toContain('id="google-analytics"');
+    expect(html).toContain('"G-KHZLVW1KH1"');
+    expect(html).toContain("getVendorConsent(vendorId)");
+  });
+
+  it("sets the GA consent default in <head>, before the banner, which stays the first child of body", () => {
+    const html = render({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-KHZLVW1KH1", NEXT_PUBLIC_GA_CMP_VENDOR_ID: "s26" });
+    const consentDefault = html.indexOf('"consent", "default"');
+    const bodyStart = html.indexOf("<body");
+    expect(html.indexOf("<head>")).toBeLessThan(consentDefault);
+    expect(consentDefault).toBeLessThan(bodyStart);
+    expect(html.indexOf("<script", bodyStart)).toBe(html.indexOf(">", bodyStart) + 1);
+    expect(html.indexOf("cmp_cdid", bodyStart)).toBeGreaterThan(bodyStart);
+  });
+
+  it("fails to render on a malformed GA measurement id", () => {
+    expect(() => render({ NEXT_PUBLIC_GA_MEASUREMENT_ID: "UA-1-1", NEXT_PUBLIC_GA_CMP_VENDOR_ID: "s26" })).toThrow(/NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  });
+
+  it("keeps Matomo unchanged alongside GA4", () => {
+    const matomoOnly = render({ NEXT_PUBLIC_MATOMO_SITE_ID: "12", NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID: "s2589" });
+    const both = render({
+      NEXT_PUBLIC_MATOMO_SITE_ID: "12",
+      NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID: "s2589",
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-KHZLVW1KH1",
+      NEXT_PUBLIC_GA_CMP_VENDOR_ID: "s26",
+    });
+    const matomoScript = (html: string) => html.slice(html.indexOf('id="matomo-analytics"'), html.indexOf("</script>", html.indexOf('id="matomo-analytics"')));
+    expect(matomoScript(both)).toBe(matomoScript(matomoOnly));
+    expect(matomoOnly).not.toContain("google-analytics");
+  });
+
   it("renders a skip link to the main content and the page's children", () => {
     const html = render({});
     expect(html).toContain(`href="#${MAIN_CONTENT_ID}"`);

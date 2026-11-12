@@ -2,6 +2,14 @@
 
 All notable changes to `@autopaylab/lp-core`. Versions are git tags (`vX.Y.Z`); landing pages pin them.
 
+## 0.5.0 - Unreleased
+
+### Added
+
+- Google Analytics 4, optional, next to Matomo. Set `NEXT_PUBLIC_GA_MEASUREMENT_ID` (validated as `G-` plus uppercase letters and digits; a malformed value fails the build) and `NEXT_PUBLIC_GA_CMP_VENDOR_ID` (the ConsentManager vendor id for GA). With both set, `RootDocument` loads gtag.js directly (no Google Tag Manager) with Google Consent Mode v2 in Basic mode: consent default all denied in `<head>`, gtag.js requested only after `cmpmngr.getVendorConsent` reports consent, `analytics_storage` denied again on withdrawal, `ad_*` always denied. `buildGoogleAnalyticsScript`, `readGoogleAnalyticsConfig`, `GOOGLE_TAG_SCRIPT_ORIGIN`, `GOOGLE_ANALYTICS_CONNECT_ORIGINS` are exported.
+- `trackCtaClick`, `trackFormStart`, `trackFormSubmit` also send GA4 events (`cta_click` `{placement}`, `application_start`, `generate_lead`, `application_error` `{reason}`) while GA consent is granted. Signatures and Matomo events are unchanged.
+- CSP: with GA configured, `script-src` adds `https://www.googletagmanager.com` and `connect-src` adds `https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com`. Without GA the CSP is byte-identical to 0.4.0.
+
 ## 0.4.0 - 2026-11-02
 
 ### Added
