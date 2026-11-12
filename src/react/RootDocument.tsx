@@ -1,8 +1,10 @@
 import { CookieConsentScript } from "@autopaylab/landing-design-system/organisms";
 import type { ReactNode } from "react";
 
+import { readGoogleAnalyticsConfig } from "../config/google-analytics";
 import { DEFAULT_MATOMO_ORIGIN } from "../config/security-headers";
 import type { EnvVars } from "../config/site-config";
+import { buildGoogleAnalyticsScript } from "./google-analytics-script";
 import { buildMatomoScript } from "./matomo-script";
 
 /** Id of the <main> element every page must render, target of the skip link. */
@@ -55,6 +57,12 @@ export interface RootDocumentProps {
  * Matomo renders only when both NEXT_PUBLIC_MATOMO_SITE_ID and
  * NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID are set, so a page that hasn't wired up
  * analytics yet doesn't ship a script that immediately no-ops.
+ *
+ * GA4 follows the same rule with NEXT_PUBLIC_GA_MEASUREMENT_ID and
+ * NEXT_PUBLIC_GA_CMP_VENDOR_ID. Its script goes in <head>, so the Consent
+ * Mode default is set before the consent banner script runs, while the
+ * banner stays the first child of <body>. It requests nothing from Google
+ * before consent (see buildGoogleAnalyticsScript).
  */
 export function RootDocument({ locale, skipLinkLabel, bannerLocale, children, env = process.env, bodyClassName }: RootDocumentProps) {
   const matomoSiteId = env.NEXT_PUBLIC_MATOMO_SITE_ID ?? "";
@@ -64,9 +72,18 @@ export function RootDocument({ locale, skipLinkLabel, bannerLocale, children, en
   // cdid). Only set it once the right ConsentManager cdid for this page's
   // actual domain has been confirmed. See the go-live checklist.
   const cmpCdid = env.NEXT_PUBLIC_CMP_CDID || undefined;
+  const googleAnalytics = readGoogleAnalyticsConfig(env);
 
   return (
     <html lang={locale}>
+      {googleAnalytics ? (
+        <head>
+          <script
+            id="google-analytics"
+            dangerouslySetInnerHTML={{ __html: buildGoogleAnalyticsScript(googleAnalytics.measurementId, googleAnalytics.cmpVendorId) }}
+          />
+        </head>
+      ) : null}
       <body className={bodyClassName}>
         <CookieConsentScript cmpCdid={cmpCdid} locale={bannerLocale} />
         {matomoSiteId && matomoCmpVendorId ? (

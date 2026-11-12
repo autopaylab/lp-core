@@ -4,5 +4,6 @@
  */
 export { trackCtaClick, trackEvent, trackFormStart, trackFormSubmit, type FormSubmitResult } from "./analytics";
 export { openCookieSettings } from "./cookie-settings";
+export { buildGoogleAnalyticsScript } from "./google-analytics-script";
 export { buildMatomoScript } from "./matomo-script";
 export { MAIN_CONTENT_ID, RootDocument, type RootDocumentProps } from "./RootDocument";
