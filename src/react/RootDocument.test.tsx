@@ -20,13 +20,23 @@ describe("RootDocument", () => {
     expect(html).toContain('<html lang="pl">');
   });
 
-  it("adds consent-gated Matomo only when both site id and vendor id are set", () => {
+  it("loads the standard Autopay banner (autopaylab.com's cdid) with no setup", () => {
+    expect(render({})).toContain("136af463a10ba");
+    expect(render({ NEXT_PUBLIC_CMP_CDID: "abc123" })).toContain("abc123");
+  });
+
+  it("adds consent-gated Matomo once the site id is set, gated by the standard banner's Matomo vendor", () => {
     expect(render({})).not.toContain("matomo-analytics");
-    expect(render({ NEXT_PUBLIC_MATOMO_SITE_ID: "12" })).not.toContain("matomo-analytics");
-    const html = render({ NEXT_PUBLIC_MATOMO_SITE_ID: "12", NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID: "s2589" });
+    const html = render({ NEXT_PUBLIC_MATOMO_SITE_ID: "12" });
     expect(html).toContain("matomo-analytics");
     expect(html).toContain("getVendorConsent(\"s2589\")");
     expect(html).toContain("https://piwik.blue.pl");
+  });
+
+  it("leaves Matomo out on a page with its own banner until that banner's Matomo vendor id is set", () => {
+    expect(render({ NEXT_PUBLIC_CMP_CDID: "abc123", NEXT_PUBLIC_MATOMO_SITE_ID: "12" })).not.toContain("matomo-analytics");
+    const html = render({ NEXT_PUBLIC_CMP_CDID: "abc123", NEXT_PUBLIC_MATOMO_SITE_ID: "12", NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID: "s7" });
+    expect(html).toContain("getVendorConsent(\"s7\")");
   });
 
   it("adds GA4 only when both measurement id and vendor id are set", () => {

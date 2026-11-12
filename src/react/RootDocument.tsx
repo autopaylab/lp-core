@@ -1,6 +1,7 @@
 import { CookieConsentScript } from "@autopaylab/landing-design-system/organisms";
 import type { ReactNode } from "react";
 
+import { readConsentManagerConfig } from "../config/consent-manager";
 import { readGoogleAnalyticsConfig } from "../config/google-analytics";
 import { DEFAULT_MATOMO_ORIGIN } from "../config/security-headers";
 import type { EnvVars } from "../config/site-config";
@@ -54,9 +55,11 @@ export interface RootDocumentProps {
  * the consent banner as the very first child of <body> (before anything can
  * set a cookie or run a tracker), consent-gated Matomo, and the skip link.
  *
- * Matomo renders only when both NEXT_PUBLIC_MATOMO_SITE_ID and
- * NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID are set, so a page that hasn't wired up
- * analytics yet doesn't ship a script that immediately no-ops.
+ * The banner is the standard Autopay one (autopaylab.com's ConsentManager
+ * config) unless NEXT_PUBLIC_CMP_CDID names another; see readConsentManagerConfig.
+ * Matomo renders once NEXT_PUBLIC_MATOMO_SITE_ID is set and the banner has a
+ * Matomo vendor id (the standard banner's by default), so a page that hasn't
+ * wired up analytics yet doesn't ship a script that immediately no-ops.
  *
  * GA4 follows the same rule with NEXT_PUBLIC_GA_MEASUREMENT_ID and
  * NEXT_PUBLIC_GA_CMP_VENDOR_ID. Its script goes in <head>, so the Consent
@@ -67,11 +70,7 @@ export interface RootDocumentProps {
 export function RootDocument({ locale, skipLinkLabel, bannerLocale, children, env = process.env, bodyClassName }: RootDocumentProps) {
   const matomoSiteId = env.NEXT_PUBLIC_MATOMO_SITE_ID ?? "";
   const matomoOrigin = env.NEXT_PUBLIC_MATOMO_ORIGIN || DEFAULT_MATOMO_ORIGIN;
-  const matomoCmpVendorId = env.NEXT_PUBLIC_MATOMO_CMP_VENDOR_ID ?? "";
-  // Leave unset to use CookieConsentScript's own default (autopaylab.com's
-  // cdid). Only set it once the right ConsentManager cdid for this page's
-  // actual domain has been confirmed. See the go-live checklist.
-  const cmpCdid = env.NEXT_PUBLIC_CMP_CDID || undefined;
+  const { cdid: cmpCdid, matomoVendorId: matomoCmpVendorId } = readConsentManagerConfig(env);
   const googleAnalytics = readGoogleAnalyticsConfig(env);
 
   return (
